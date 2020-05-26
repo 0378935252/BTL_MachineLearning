@@ -4,7 +4,16 @@ import matplotlib.pyplot as plt                 #Thư viện dùng để vẽ đ
 from sklearn import linear_model, datasets      # sklearn: thư viện hỗ trợ học máy
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.utils import check_array
 
+def mean_absolute_percentage_error(y_true, y_pred): 
+    #y_true, y_pred = check_array(y_true, y_pred)
+
+    ## Note: does not handle mix 1d representation
+    #if _is_1d(y_true): 
+    y_true, y_pred = _check_1d_array(y_true, y_pred)
+
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 # Load data
 data = pd.read_csv("dataBTL.csv", encoding="utf-8",sep=";") # Đọc dữ liệu từ một file, encoding file đầu vào là utf-8, các cột được ngăn bởi dấu ;
                                                          # kết quả trả về là một dataframe
@@ -21,20 +30,28 @@ regr = linear_model.LinearRegression(fit_intercept = False) #fit_intercept = Fal
 regr.fit(X_train, y_train)                  # Hàm fit(X_train, y_train) dùng để training từ data train sets và label train sets để cho ra hàm dự đoán
 Y_pred = regr.predict(X_test)               # Kiểm thử: predict(X_test) hàm dự đoán với tham số đầu vào là data test sets (X_test) trả về tập nhãn(lable sets) dự đoán được gán vào y_pred
 
+#rmse vs mape
+#accuracy_score(Y_ff, Y_gg)
+y_ff = [1.0 , 2.0]
+y_gg = [2.0 , 3.0]
+mean_absolute_percentage_error(y_test, Y_pred)
+
 plt.plot(data.Acreage, data.Price, "ro")        # Biểu diễn các điểm dữ liệu trong dataframe dựa vào Price và Acreage bằng các dấu chấm đỏ (ro) và được nối liền với nhau (-)
 plt.plot(X_test.Acreage, Y_pred, color="black")  # Vẽ một đường thẳng màu đen biểu diễn các điểm theo các cặp tọa độ là giá trị Height trong X_test và Weight dự đoán tương ứng
                                                     #Giá trị của X_test hiện tại chứa cả cột B với value = 1
-w_0 = regr.coef_[0]
-w_1 = regr.coef_[1]
-print (w_0,w_1) 
+plt.plot(X_test.Acreage, Y_pred, "o", color="black")                                        
+w_0 = regr.coef_[0] #Lấy ra w0
+w_1 = regr.coef_[1] #Lấy ra w1
+print("Phương trình hồi quy tuyến tính là: ")
+print ("y = ",w_1,"x + ",w_0) 
 
-x0 = np.linspace(10,60,2)     # np.linspace(10,60,2) tạo ra 2 mẫu cho x0 là 10 và 60
-y0 = w_0 + w_1*x0               # Hàm hồi quy tuyến tính của Weight theo Height(x0)
-plt.plot(x0,y0, color = "yellow")    # vẽ một đường thẳng bỏi 2 điểm (x0=10, y0(10)) và (x0 = 60, y0(60)) màu vàng
+x0 = np.linspace(data_X.Acreage[np.argmin(data_X.Acreage)],data_X.Acreage[np.argmax(data_X.Acreage)],2)     # np.linspace(10,60,2) tạo ra 2 mẫu cho x0 là 10 và 60
+y0 = w_0 + w_1*x0               # Hàm hồi quy tuyến tính của Acreage theo Price
+plt.plot(x0,y0, color = "yellow")    # vẽ một đường thẳng bỏi 2 điểm x0 và y0 màu vàng
 plt.xlabel("Acreage")
 plt.ylabel("Price")
 plt.title("Biểu đồ hồi quy tuyến tính biểu diễn giá phòng trọ theo diện tích")
-#plt.show()      # Hiển thị đồ thị trong cửa sổ Figure
+plt.show()      # Hiển thị đồ thị trong cửa sổ Figure
 print("Mời bạn nhập diện tích phòng muốn thuê: ")
 s=0
 s=float(input())
